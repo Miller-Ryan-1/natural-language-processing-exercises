@@ -41,3 +41,27 @@ def acquire_codeup_blog():
         blogs_info.append(blog_info)
 
     return blogs_info  
+
+def get_news_articles():
+    # Create the list of 4 subpages the scraper will work through
+    target_list = ['business','sports','technology','entertainment']
+    base_url = 'https://inshorts.com/en/read/'
+    target_list = [(base_url + target) for target in target_list]
+
+    # Create container for output list
+    arts_info = []
+
+    for url in target_list:
+        # Create the beautiful soup object for the page
+        r = requests.get(url)
+        soup = bs(r.content, 'html.parser')
+        # Loop through each news article
+        for art in soup.find_all('div', attrs = {'class':'news-card z-depth-1'}):
+            art_info = {}
+            art_info['title'] = art.find('span', attrs = {'itemprop':'headline'}).text
+            art_info['content'] = art.find('div', attrs = {'itemprop' : 'articleBody'}).text.strip()
+            # Use the first word from the title of the header for all
+            art_info['category'] = soup.find('title').text.split(' ')[0]
+            arts_info.append(art_info)
+    
+    return arts_info
